@@ -16,20 +16,21 @@ except ImportError:
 
 
 class Plex:
-    def __init__(self, token = None, server_ip = "127.0.0.1", logging_level="INFO"):
+    def __init__(self, token = None, server_ip = "localhost", logging_level="INFO"):
+        self.workingdir = os.path.dirname(os.path.realpath(__file__))
         self.log_level = self.logging_config(logging_level)
         self.token = token
         self.server_ip = server_ip
         self.update_url = "https://plex.tv/downloads/latest/5?channel=8&build=linux-x86_64&distro=debian&X-Plex-Token=" + str(self.token)
         self.url = "http://" + self.server_ip + ":32400/status/sessions"
-        self.location_download = os.path.dirname(os.path.realpath(__file__)) + "/plex_download.deb"
+        self.location_download = self.workingdir + "/plex_download.deb"
         self.deb_downloaded = self.download_deb_from_plex()
         self.current_sessions = int(self.lookup_sessions())
         self.condition_soft_version = 0
         self.allow_soft_update = self.condition_soft_update()
 
     def logging_config(self, logging_level):
-        logfile = os.getcwd() + '/plex_update.log'
+        logfile = self.workingdir + '/plex_update.log'
 
         logging.basicConfig(filename=logfile, filemode='a', format='%(asctime)s %(levelname)s:%(message)s', level=logging_level)
 
@@ -98,7 +99,7 @@ class Plex:
         return self.allow_soft_update and self.compare_pacakge_versions() == 2 
 
 
-plex = Plex(server_ip="127.0.0.1", logging_level='INFO')
+plex = Plex(server_ip="192.168.1.X", logging_level='INFO')
 if plex.pkg_install():
     logging.info('Plex server updated. Have fun with the new version.')
 logging.debug(plex.__dict__)
